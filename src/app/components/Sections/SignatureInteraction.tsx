@@ -5,17 +5,19 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Icosahedron, Float } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
 import { MousePointer2 } from "lucide-react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
 
-// --- ইন্টারেক্টিভ 3D অবজেক্ট ---
+// --- Interactive 3D Object ---
 function InteractiveShape() {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Group>(null);
 
-  // অটোমেটিক স্লো রোটেশন
-  useFrame((state) => {
+  useFrame(() => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.002;
       meshRef.current.rotation.x += 0.001;
@@ -23,9 +25,8 @@ function InteractiveShape() {
   });
 
   return (
-    <group>
-      {/* মেইন ওয়্যারফ্রেমে অবজেক্ট */}
-      <Icosahedron ref={meshRef} args={[2, 2]}>
+    <group ref={meshRef}>
+      <Icosahedron args={[2, 2]}>
         <meshStandardMaterial
           color="#4f85ff"
           emissive="#8a4fff"
@@ -36,12 +37,10 @@ function InteractiveShape() {
         />
       </Icosahedron>
 
-      {/* ভেতরের একটি সলিড গ্লোয়িং কোর */}
       <Icosahedron args={[1.5, 0]}>
         <meshBasicMaterial color="#4f85ff" transparent opacity={0.1} />
       </Icosahedron>
 
-      {/* বাইরের একটি হালকা গ্লোয়িং শেল */}
       <Icosahedron args={[2.2, 1]}>
         <meshStandardMaterial
           color="#8a4fff"
@@ -56,33 +55,36 @@ function InteractiveShape() {
   );
 }
 
-// --- মূল কম্পোনেন্ট ---
+// --- Main Component ---
 export default function SignatureInteraction() {
   const [isHovered, setIsHovered] = useState(false);
-  const hintRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // মাউস মুভমেন্ট ট্র্যাক করা (কার্সার হিন্টের জন্য)
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
+  const springX = useSpring(mouseX, springConfig);
+  const springY = useSpring(mouseY, springConfig);
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (hintRef.current) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      gsap.to(hintRef.current, {
-        x: x + 20,
-        y: y + 20,
-        duration: 0.3,
-        ease: "power2.out",
-      });
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      mouseX.set(e.clientX - rect.left + 20);
+      mouseY.set(e.clientY - rect.top + 20);
     }
   };
 
   return (
-    // এখানে bg-[#050A14] এর পরিবর্তে bg-transparent ব্যবহার করা হয়েছে
-    <section className="relative w-full py-32 px-6 md:px-12 bg-transparent overflow-hidden flex flex-col items-center justify-center">
-      {/* 3D ক্যানভাস কন্টেইনার */}
+    // CRITICAL FIX 1: Reduced fixed padding (py-32 -> py-12 lg:py-16 2xl:py-24)
+    // and added min-h-[90dvh] to perfectly frame it like a final slide
+    <section className="relative w-full min-h-[90dvh] py-12 lg:py-16 2xl:py-24 px-4 sm:px-6 md:px-12 bg-transparent overflow-hidden flex flex-col items-center justify-center z-10">
+      {/* 3D Canvas Container */}
       <div
-        className="w-full max-w-4xl h-[500px] md:h-[600px] relative cursor-grab active:cursor-grabbing"
+        ref={containerRef}
+        // CRITICAL FIX 2: Viewport-relative height (h-[45vh]) with a strict max-height for normal desktops (max-h-[400px]),
+        // unlocking to max-h-[600px] only on ultra-wide 2xl/3xl screens.
+        className="w-full max-w-4xl h-[45vh] min-h-[300px] max-h-[400px] 2xl:max-h-[600px] relative cursor-grab active:cursor-grabbing rounded-3xl"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
@@ -100,64 +102,68 @@ export default function SignatureInteraction() {
             <InteractiveShape />
           </Float>
 
-          {/* গ্লো ইফেক্ট */}
           <EffectComposer>
             <Bloom
               intensity={2.5}
               luminanceThreshold={0.2}
               luminanceSmoothing={0.9}
-              height={300}
             />
           </EffectComposer>
 
-          {/* ইউজার ইন্টারঅ্যাকশন */}
           <OrbitControls
             enableZoom={false}
             enablePan={false}
-            rotateSpeed={0.5}
+            rotateSpeed={0.6}
             autoRotate={false}
           />
         </Canvas>
 
-        {/* "Move to Interact" কার্সার হিন্ট */}
         <AnimatePresence>
           {isHovered && (
             <motion.div
-              ref={hintRef}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.2 }}
-              className="absolute top-0 left-0 pointer-events-none z-20 flex items-center gap-2 px-4 py-2 bg-[#0a1020]/80 backdrop-blur-md border border-white/10 rounded-full text-sm text-white shadow-[0_0_20px_rgba(79,133,255,0.3)]"
-              style={{ willChange: "transform" }}
+              className="hidden md:flex absolute top-0 left-0 pointer-events-none z-20 items-center gap-2 px-4 py-2 bg-[#0a1020]/80 backdrop-blur-md border border-white/10 rounded-full text-sm text-white shadow-[0_0_20px_rgba(79,133,255,0.3)]"
+              style={{
+                x: springX,
+                y: springY,
+                willChange: "transform",
+              }}
             >
               <MousePointer2
                 size={16}
                 className="text-blue-400 animate-pulse"
               />
               <span style={{ fontFamily: "'Inter', sans-serif" }}>
-                Move to Interact
+                Click & Drag to Interact
               </span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* টেক্সট কন্টেন্ট */}
-      <div className="text-center mt-12 max-w-2xl mx-auto relative z-10">
+      {/* Text Content & Final CTA */}
+      {/* CRITICAL FIX 3: Reduced top margin (mt-12 -> mt-8) to keep it tightly grouped with the canvas on short screens */}
+      <div className="text-center mt-8 md:mt-10 2xl:mt-12 max-w-2xl mx-auto relative z-10 flex flex-col items-center">
         <h2
-          className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-6"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 sm:mb-5"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          Experience Intelligence in Motion.
+          Experience Intelligence.
         </h2>
         <p
-          className="text-gray-400 text-lg leading-relaxed"
+          className="text-slate-400 text-base sm:text-lg leading-relaxed mb-6 md:mb-8 px-4"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
           Interact with our core AI model. Its structure adapts to your
           perspective, revealing new connections with every movement.
         </p>
+
+        <button className="px-8 py-4 bg-blue-600 text-white font-bold text-sm tracking-wider border-2 border-blue-400 rounded-full shadow-[0_0_30px_rgba(37,99,235,0.5)] cursor-pointer transition-all duration-300 hover:bg-blue-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(37,99,235,0.7)]">
+          DEPLOY YOUR INSTANCE
+        </button>
       </div>
     </section>
   );

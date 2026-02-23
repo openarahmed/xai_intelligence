@@ -6,15 +6,14 @@ import {
   Database,
   Cpu,
   BarChart2,
-  User,
   ChevronDown,
   Activity,
   Layers,
 } from "lucide-react";
+import React from "react";
 
-// --- কাস্টম চার্ট কম্পোনেন্ট (SVG + Framer Motion) ---
+// --- Custom Chart Component (SVG + Framer Motion) ---
 const CustomChart = () => {
-  // চার্টের ডেটা পয়েন্ট (SVG Path তৈরি করার জন্য)
   const points = [
     [0, 80],
     [50, 60],
@@ -28,41 +27,37 @@ const CustomChart = () => {
     [450, 10],
   ];
 
-  // লাইন পাথ তৈরি করা
   const pathData = `M ${points.map((p) => p.join(",")).join(" L ")}`;
-  // এরিয়া ফিল পাথ (নিচে নামিয়ে বন্ধ করা)
   const areaData = `${pathData} L 450,100 L 0,100 Z`;
 
   return (
-    <div className="relative w-full h-48 mt-4">
+    // Added overflow-hidden to prevent the chart from breaking out of its container on resize
+    <div className="relative w-full h-32 sm:h-40 md:h-48 mt-6 overflow-hidden">
       <svg
         className="w-full h-full"
         viewBox="0 0 450 100"
         preserveAspectRatio="none"
       >
         <defs>
-          {/* লাইনের জন্য গ্রেডিয়েন্ট */}
           <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#3b82f6" />
             <stop offset="100%" stopColor="#8a4fff" />
           </linearGradient>
-          {/* নিচের এরিয়ার জন্য গ্রেডিয়েন্ট (ফেড আউট) */}
           <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
           </linearGradient>
         </defs>
 
-        {/* এরিয়া ফিল (Area Fill) */}
         <motion.path
           d={areaData}
           fill="url(#areaGradient)"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
+          viewport={{ once: true }} // Ensures it only animates once when scrolling down
           transition={{ duration: 1, delay: 0.5 }}
         />
 
-        {/* মেইন লাইন (Stroke) */}
         <motion.path
           d={pathData}
           fill="none"
@@ -70,10 +65,10 @@ const CustomChart = () => {
           strokeWidth="3"
           initial={{ pathLength: 0 }}
           whileInView={{ pathLength: 1 }}
+          viewport={{ once: true }}
           transition={{ duration: 2, ease: "easeInOut" }}
         />
 
-        {/* গ্লোয়িং ডট (Glowing Dots) */}
         {points.map((p, i) => (
           <motion.circle
             key={i}
@@ -85,9 +80,9 @@ const CustomChart = () => {
             strokeWidth="2"
             initial={{ opacity: 0, scale: 0 }}
             whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
             transition={{ delay: 1 + i * 0.1, duration: 0.3 }}
           >
-            {/* এক্সট্রা গ্লো এফেক্ট */}
             <animate
               attributeName="r"
               values="3;5;3"
@@ -98,8 +93,9 @@ const CustomChart = () => {
         ))}
       </svg>
 
-      {/* চার্টের নিচের মাসগুলো */}
-      <div className="flex justify-between text-[10px] text-gray-500 mt-2 px-2 font-mono">
+      {/* Chart X-Axis Labels */}
+      {/* Hidden on very small screens to prevent overlap */}
+      <div className="hidden sm:flex justify-between text-[10px] text-slate-500 mt-3 px-1 font-mono">
         {[
           "Jan",
           "Feb",
@@ -121,21 +117,39 @@ const CustomChart = () => {
   );
 };
 
-// --- ছোট ম্যাট্রিক্স কার্ড ---
-const MetricCard = ({ title, value, sub, icon, color }: any) => (
-  <div className="flex-1 bg-[#0f172a]/50 border border-white/5 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group">
+// --- Metric Card Component (Strictly Typed) ---
+interface MetricCardProps {
+  title: string;
+  value: string;
+  sub?: string;
+  icon: React.ReactNode;
+  color: string;
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  sub,
+  icon,
+  color,
+}) => (
+  <div className="flex-1 bg-[#0f172a]/80 border border-white/5 rounded-xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden group hover:bg-[#0f172a] transition-colors">
     <div
-      className={`absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity ${color}`}
+      className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity ${color}`}
     >
       {icon}
     </div>
-    <h4 className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+    <h4 className="text-slate-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider relative z-10">
       {title}
     </h4>
-    <div className="mt-2">
-      <span className="text-2xl font-bold text-white block">{value}</span>
+    <div className="mt-2 sm:mt-3 relative z-10">
+      <span className="text-xl sm:text-2xl font-bold text-white block">
+        {value}
+      </span>
       {sub && (
-        <span className="text-[10px] text-green-400 font-mono">{sub}</span>
+        <span className="text-[10px] text-emerald-400 font-mono mt-1 block">
+          {sub}
+        </span>
       )}
     </div>
   </div>
@@ -143,43 +157,51 @@ const MetricCard = ({ title, value, sub, icon, color }: any) => (
 
 export default function DashboardPreview() {
   return (
-    <section className="relative w-full py-24 px-6 md:px-12 bg-[#050A14] overflow-hidden flex flex-col items-center">
-      {/* টাইটেল */}
-      <div className="text-center mb-16 relative z-10">
+    <section className="relative w-full py-20 lg:py-32 px-4 sm:px-6 md:px-12 bg-[#050A14] overflow-hidden flex flex-col items-center z-20">
+      {/* Background ambient glow behind the dashboard */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+      {/* Title Area */}
+      <div className="text-center mb-12 md:mb-16 relative z-10">
         <h2
-          className="text-3xl md:text-5xl font-bold text-white tracking-tight"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           Dashboard Preview
         </h2>
-        <p className="text-gray-400 mt-4 max-w-lg mx-auto">
+        <p className="text-slate-400 mt-4 max-w-lg mx-auto text-sm sm:text-base px-4">
           Monitor your AI infrastructure in real-time with our advanced
           visualization engine.
         </p>
       </div>
 
-      {/* ড্যাশবোর্ড কন্টেইনার (Tilt Effect সহ) */}
+      {/* Dashboard Container */}
       <motion.div
         initial={{ opacity: 0, y: 50, rotateX: 10 }}
         whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative w-full max-w-5xl aspect-[16/10] md:aspect-[16/9] bg-[#0b1221] rounded-3xl border border-white/10 shadow-[0_0_50px_-10px_rgba(59,130,246,0.2)] overflow-hidden flex"
+        // Changed to flex-col on mobile, flex-row on desktop
+        // Removed strict aspect ratio constraints in favor of content-driven height
+        className="relative w-full max-w-6xl min-h-[600px] bg-[#0b1221] rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_0_50px_-10px_rgba(59,130,246,0.2)] overflow-hidden flex flex-col md:flex-row z-10"
       >
-        {/* টপ বর্ডার গ্লো */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
+        {/* Top Border Glow */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50 z-20"></div>
 
-        {/* ১. সাইডবার (Left) */}
-        <div className="w-20 md:w-64 border-r border-white/5 flex flex-col p-6 bg-[#0a1020]">
-          {/* লোগো */}
-          <div className="flex items-center gap-2 mb-10 text-white font-bold text-xl">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">
+        {/* 1. Sidebar (Top on mobile, Left on desktop) */}
+        <div className="w-full md:w-20 lg:w-64 border-b md:border-b-0 md:border-r border-white/5 flex flex-row md:flex-col p-4 sm:p-6 bg-[#0a1020] justify-between md:justify-start items-center md:items-stretch z-10">
+          {/* Logo */}
+          <div className="flex items-center gap-3 md:mb-10 text-white font-bold text-xl">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg">
               X
             </div>
-            <span className="hidden md:block">XAI</span>
+            <span className="hidden lg:block tracking-widest text-sm">
+              XAI <span className="font-light text-slate-400">INTEL</span>
+            </span>
           </div>
 
-          {/* মেনু আইটেম */}
-          <div className="flex flex-col gap-2">
+          {/* Menu Items (Hidden on mobile to save space, shown on md+) */}
+          <div className="hidden md:flex flex-col gap-2">
             {[
               { icon: <Home size={20} />, label: "Overview", active: true },
               {
@@ -196,92 +218,101 @@ export default function DashboardPreview() {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
+                className={`flex justify-center lg:justify-start items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
                   item.active
                     ? "bg-blue-600/10 text-blue-400 border border-blue-600/20"
-                    : "text-gray-400 hover:bg-white/5 hover:text-white"
+                    : "text-slate-500 hover:bg-white/5 hover:text-slate-300"
                 }`}
               >
                 {item.icon}
-                <span className="hidden md:block text-sm font-medium">
+                <span className="hidden lg:block text-sm font-medium tracking-wide">
                   {item.label}
                 </span>
               </div>
             ))}
           </div>
 
-          {/* ইউজার প্রোফাইল (Bottom) */}
-          <div className="mt-auto flex items-center gap-3 p-3 rounded-lg border border-white/5 bg-white/[0.02]">
-            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs">
+          {/* User Profile (Right side on mobile, Bottom on desktop) */}
+          <div className="md:mt-auto flex justify-center lg:justify-start items-center gap-3 p-2 lg:p-3 rounded-xl border border-white/5 bg-white/[0.02] cursor-pointer hover:bg-white/[0.05] transition-colors">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-slate-700 to-slate-600 flex items-center justify-center text-xs font-bold text-white border border-white/10">
               U
             </div>
-            <div className="hidden md:block overflow-hidden">
-              <p className="text-xs text-white truncate">User Profile</p>
-              <p className="text-[10px] text-gray-500 truncate">Pro Plan</p>
+            <div className="hidden lg:block overflow-hidden">
+              <p className="text-xs text-white truncate font-medium">
+                System Admin
+              </p>
+              <p className="text-[10px] text-emerald-400 truncate mt-0.5">
+                ● Online
+              </p>
             </div>
           </div>
         </div>
 
-        {/* ২. মেইন কন্টেন্ট (Right) */}
-        <div className="flex-1 p-8 flex flex-col gap-6 overflow-hidden relative">
-          {/* ব্যাকগ্রাউন্ড গ্রিড */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
-
-          {/* হেডার */}
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-2xl font-bold text-white">Dashboard</h3>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-[#0f172a] text-xs text-gray-300">
+        {/* 2. Main Content Area (Right side) */}
+        <div className="flex-1 p-4 sm:p-6 lg:p-10 flex flex-col gap-6 lg:gap-8 overflow-hidden relative bg-[#050A14]/50">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h3
+                className="text-xl sm:text-2xl font-bold text-white tracking-tight"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                Analytics Overview
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                System performance matrix
+              </p>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 bg-[#0f172a]/80 text-xs font-medium text-slate-300 cursor-pointer hover:bg-[#0f172a] transition-colors shadow-sm">
               <span>Last 30 Days</span>
-              <ChevronDown size={12} />
+              <ChevronDown size={14} className="text-blue-400" />
             </div>
           </div>
 
-          {/* টপ কার্ডস (Metrics) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Top Cards (Metrics) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             <MetricCard
               title="Total Data Processed"
               value="1.2 PB"
-              icon={<Database />}
+              icon={<Database size={24} />}
               color="text-blue-500"
               sub="+12.5% vs last month"
             />
             <MetricCard
               title="Prediction Accuracy"
               value="98.5%"
-              icon={<Activity />}
+              icon={<Activity size={24} />}
               color="text-purple-500"
               sub="Top 1% industry standard"
             />
             <MetricCard
               title="Active Models"
               value="15"
-              icon={<Layers />}
+              icon={<Layers size={24} />}
               color="text-emerald-500"
               sub="All systems operational"
             />
           </div>
 
-          {/* মেইন চার্ট সেকশন */}
-          <div className="flex-1 bg-[#0f172a]/40 border border-white/5 rounded-2xl p-6 relative backdrop-blur-sm">
-            <div className="flex justify-between items-start">
+          {/* Main Chart Section */}
+          <div className="flex-1 bg-[#0f172a]/40 border border-white/5 rounded-2xl p-5 sm:p-8 relative backdrop-blur-md flex flex-col">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
               <div>
-                <h4 className="text-white font-medium">
-                  Monthly Insight Generation
+                <h4 className="text-white font-semibold text-sm sm:text-base">
+                  Monthly Inference Volume
                 </h4>
-                <p className="text-gray-500 text-xs mt-1">
-                  Real-time model inference stats
+                <p className="text-slate-500 text-xs mt-1">
+                  Requests processed per second (RPS)
                 </p>
               </div>
-              {/* লেজেন্ড */}
               <div className="flex gap-4">
-                <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_blue]"></span>{" "}
-                  Current
+                <div className="flex items-center gap-2 text-[10px] sm:text-xs font-medium text-slate-300 bg-white/5 px-3 py-1.5 rounded-full">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
+                  Live Data
                 </div>
               </div>
             </div>
 
-            {/* কাস্টম চার্ট */}
             <CustomChart />
           </div>
         </div>

@@ -3,23 +3,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// --- কাস্টম অ্যানিমেশন স্টাইল (টেইলউইন্ড কনফিগ বা গ্লোবাল সিএসএস ছাড়াও এখানে কাজ করবে) ---
-const pulseAnimation = {
-  scale: [1, 1.2, 1],
-  opacity: [0.7, 1, 0.7],
-  transition: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-};
-
-// --- ভিজ্যুয়াল ১: Connecting Raw Data (অগোছালো পার্টিকেলস) ---
+// --- Visual 1: Connecting Raw Data ---
 const ConnectingVisual = () => (
   <motion.div
     initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
     animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
     exit={{ opacity: 0, scale: 1.05, filter: "blur(5px)" }}
     transition={{ duration: 0.6, ease: "circOut" }}
-    className="relative w-full h-full flex items-center justify-center bg-[#050a14] rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+    className="relative w-full h-full flex items-center justify-center bg-[#050a14] rounded-3xl lg:rounded-3xl rounded-b-none border border-white/5 overflow-hidden shadow-xl lg:shadow-2xl"
   >
-    {/* বিক্ষিপ্ত পার্টিকেলস */}
     <div className="absolute inset-0">
       <svg
         width="100%"
@@ -27,12 +19,12 @@ const ConnectingVisual = () => (
         viewBox="0 0 400 300"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="xMidYMid slice"
       >
         {Array.from({ length: 80 }).map((_, i) => {
           const cx = Math.random() * 400;
           const cy = Math.random() * 300;
           const r = Math.random() * 2 + 0.5;
-          // কেন্দ্রের দিকে একটু বেশি ডেনসিটি রাখা
           const opacity =
             Math.random() * 0.5 +
             (cx > 150 && cx < 250 && cy > 100 && cy < 200 ? 0.4 : 0.1);
@@ -59,14 +51,13 @@ const ConnectingVisual = () => (
         })}
       </svg>
     </div>
-    {/* Badge */}
     <div className="absolute px-5 py-2 bg-[#0a1020]/80 backdrop-blur-md border border-blue-500/20 rounded-full text-[10px] tracking-[0.2em] text-blue-300 font-medium shadow-[0_0_20px_rgba(59,130,246,0.2)]">
       CONNECTING DATA...
     </div>
   </motion.div>
 );
 
-// --- ভিজ্যুয়াল ২: Analyzing Patterns (স্ট্রাকচার্ড নেটওয়ার্ক) ---
+// --- Visual 2: Analyzing Patterns ---
 const AnalyzingVisual = () => {
   const nodes = [
     [200, 100],
@@ -84,7 +75,7 @@ const AnalyzingVisual = () => {
       animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
       exit={{ opacity: 0, scale: 1.05, filter: "blur(5px)" }}
       transition={{ duration: 0.6, ease: "circOut" }}
-      className="relative w-full h-full flex items-center justify-center bg-[#050a14] rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+      className="relative w-full h-full flex items-center justify-center bg-[#050a14] rounded-3xl lg:rounded-3xl rounded-b-none border border-white/5 overflow-hidden shadow-xl lg:shadow-2xl"
     >
       <div className="absolute inset-0 flex items-center justify-center">
         <svg
@@ -93,8 +84,8 @@ const AnalyzingVisual = () => {
           viewBox="0 0 400 300"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
         >
-          {/* নেটওয়ার্ক লাইনস */}
           <path
             d="M200 100 L150 180 L100 250 M200 100 L250 180 L300 250 M150 180 L250 180 M150 180 L200 220 L250 180 M180 140 L220 140"
             stroke="url(#grad1)"
@@ -107,8 +98,6 @@ const AnalyzingVisual = () => {
             strokeWidth="1"
             strokeOpacity="0.4"
           />
-
-          {/* গ্রেডিয়েন্ট ডেফিনিশন */}
           <defs>
             <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#4f85ff" />
@@ -119,8 +108,6 @@ const AnalyzingVisual = () => {
               <stop offset="100%" stopColor="#4f85ff" />
             </linearGradient>
           </defs>
-
-          {/* পালসিং নোড (Pulsing Nodes) */}
           {nodes.map((pos, i) => (
             <motion.circle
               key={`n-${i}`}
@@ -128,27 +115,27 @@ const AnalyzingVisual = () => {
               cy={pos[1]}
               r="6"
               fill={i % 2 === 0 ? "#4f85ff" : "#8a4fff"}
-              animate={pulseAnimation}
+              animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             />
           ))}
         </svg>
       </div>
-      {/* Badge */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-5 py-2 bg-[#0a1020]/90 backdrop-blur-md border border-purple-500/30 rounded-full text-[10px] tracking-[0.2em] text-purple-300 font-medium shadow-[0_0_25px_rgba(138,79,255,0.4)] z-10">
+      <div className="absolute px-5 py-2 bg-[#0a1020]/90 backdrop-blur-md border border-purple-500/30 rounded-full text-[10px] tracking-[0.2em] text-purple-300 font-medium shadow-[0_0_25px_rgba(138,79,255,0.4)] z-10">
         ANALYZING PATTERNS...
       </div>
     </motion.div>
   );
 };
 
-// --- ভিজ্যুয়াল ৩: Generating Insight (ফলাফল/কেন্দ্রীয় আলো) ---
+// --- Visual 3: Generating Insight ---
 const GeneratingVisual = () => (
   <motion.div
     initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
     animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
     exit={{ opacity: 0, scale: 1.05, filter: "blur(5px)" }}
     transition={{ duration: 0.6, ease: "circOut" }}
-    className="relative w-full h-full flex items-center justify-center bg-[#050a14] rounded-3xl border border-white/5 overflow-hidden shadow-2xl"
+    className="relative w-full h-full flex items-center justify-center bg-[#050a14] rounded-3xl lg:rounded-3xl rounded-b-none border border-white/5 overflow-hidden shadow-xl lg:shadow-2xl"
   >
     <div className="absolute inset-0 flex items-center justify-center">
       <svg
@@ -157,8 +144,8 @@ const GeneratingVisual = () => (
         viewBox="0 0 400 300"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="xMidYMid slice"
       >
-        {/* কেন্দ্রীয় গ্লোয়িং অরব */}
         <motion.circle
           cx="200"
           cy="150"
@@ -183,7 +170,6 @@ const GeneratingVisual = () => (
           strokeWidth="0.2"
           opacity="0.1"
         />
-
         <defs>
           <radialGradient id="gradCenter" cx="0.5" cy="0.5" r="0.5">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
@@ -193,109 +179,140 @@ const GeneratingVisual = () => (
         </defs>
       </svg>
     </div>
-    {/* Badge */}
-    <div className="absolute mt-32 px-5 py-2 bg-[#0a1020]/90 backdrop-blur-md border border-white/30 rounded-full text-[10px] tracking-[0.2em] text-white font-medium shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-5 py-2 bg-[#0a1020]/90 backdrop-blur-md border border-white/30 rounded-full text-[10px] tracking-[0.2em] text-white font-medium shadow-[0_0_30px_rgba(255,255,255,0.3)] z-10">
       INSIGHT GENERATED
     </div>
   </motion.div>
 );
 
-// --- মূল ডেটা আপডেট করা হয়েছে ---
 const steps = [
   {
     id: 1,
     title: "1. Connect Raw Data",
     description:
       "Seamlessly integrate data from scattered sources into a unified pipeline.",
-    visual: <ConnectingVisual />, // ভিন্ন ভিজ্যুয়াল
+    visual: <ConnectingVisual />,
   },
   {
     id: 2,
     title: "2. Analyze & Discover Patterns",
     description: "Uncover hidden relationships with advanced AI algorithms.",
-    visual: <AnalyzingVisual />, // ভিন্ন ভিজ্যুয়াল
+    visual: <AnalyzingVisual />,
   },
   {
     id: 3,
     title: "3. Generate Actionable Insight",
     description: "Transform complex patterns into clear, strategic decisions.",
-    visual: <GeneratingVisual />, // নতুন ভিন্ন ভিজ্যুয়াল
+    visual: <GeneratingVisual />,
   },
 ];
 
-// --- মূল কম্পোনেন্ট (লেআউটে কোনো পরিবর্তন নেই) ---
 export default function InsightFlow() {
   const [activeStep, setActiveStep] = useState(1);
 
   return (
-    <section className="relative w-full py-32 px-6 md:px-12 lg:px-24 bg-[#050a14] z-20">
-      <div className="text-center mb-20">
-        <h2
-          className="text-3xl md:text-5xl font-bold text-white tracking-tight"
-          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-        >
-          Interactive Insight Flow
-        </h2>
-      </div>
+    <section className="relative w-full py-16 md:py-24 lg:py-32 px-4 sm:px-6 md:px-12 lg:px-24 bg-[#050a14] z-20">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16 lg:mb-20">
+          <h2
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            Interactive Insight Flow
+          </h2>
+        </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-24 items-start">
-        {/* Left Column */}
-        <div className="w-full lg:w-5/12 flex flex-col gap-4 relative pl-10 md:pl-12">
-          <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-white/[0.05] rounded-full hidden lg:block"></div>
-          {steps.map((step) => {
-            const isActive = activeStep === step.id;
-            return (
-              <div
-                key={step.id}
-                onMouseEnter={() => setActiveStep(step.id)}
-                onClick={() => setActiveStep(step.id)}
-                className={`relative p-8 rounded-2xl cursor-pointer transition-all duration-300 ease-out ${
-                  isActive
-                    ? "bg-[#0b1224] border border-blue-900/30 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]"
-                    : "bg-transparent border border-transparent hover:bg-white/[0.02]"
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="absolute -left-10 md:-left-12 top-0 bottom-0 w-[3px] bg-[#4f85ff] rounded-full hidden lg:block z-10"
-                    style={{
-                      boxShadow:
-                        "0 0 20px 2px rgba(79, 133, 255, 0.6), 0 0 10px 1px rgba(79, 133, 255, 0.4) inset",
-                    }}
-                  />
-                )}
+        {/* ------------------------------------------------ */}
+        {/* MOBILE & TABLET LAYOUT: 3 Stacked Cards (< 1024px) */}
+        {/* ------------------------------------------------ */}
+        <div className="flex flex-col gap-10 lg:hidden">
+          {steps.map((step) => (
+            <div
+              key={`mobile-${step.id}`}
+              className="flex flex-col rounded-3xl bg-[#0b1224] border border-white/10 shadow-lg overflow-hidden"
+            >
+              {/* Visual Container for Card */}
+              <div className="w-full h-[280px] sm:h-[350px] relative">
+                {step.visual}
+              </div>
+
+              {/* Text Container for Card */}
+              <div className="p-6 sm:p-8 bg-[#0a1020]/80 border-t border-white/5 relative z-10">
                 <h3
-                  className={`text-2xl font-semibold mb-3 transition-colors duration-300 ${isActive ? "text-white" : "text-gray-500"}`}
+                  className="text-xl sm:text-2xl font-bold text-white mb-3"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {step.title}
                 </h3>
                 <p
-                  className={`text-base leading-relaxed transition-colors duration-300 ${isActive ? "text-gray-300" : "text-gray-600"}`}
+                  className="text-sm sm:text-base text-slate-300 leading-relaxed"
                   style={{ fontFamily: "'Inter', sans-serif" }}
                 >
                   {step.description}
                 </p>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
-        {/* Right Column: Visual Display (Sticky) */}
-        <div className="w-full lg:w-7/12 h-[450px] lg:h-[550px] sticky top-32">
-          <AnimatePresence mode="wait">
-            {steps.map((step) =>
-              step.id === activeStep ? (
-                <motion.div
-                  key={step.id}
-                  className="absolute inset-0 h-full w-full"
+        {/* ------------------------------------------------ */}
+        {/* DESKTOP LAYOUT: Interactive Split Screen (≥ 1024px) */}
+        {/* ------------------------------------------------ */}
+        <div className="hidden lg:flex gap-24 items-start">
+          {/* Left Column (Text Steps) */}
+          <div className="w-5/12 flex flex-col gap-4 relative pl-12">
+            <div className="absolute left-0 top-6 bottom-6 w-[2px] bg-white/[0.05] rounded-full z-0"></div>
+            {steps.map((step) => {
+              const isActive = activeStep === step.id;
+              return (
+                <div
+                  key={`desktop-${step.id}`}
+                  onMouseEnter={() => setActiveStep(step.id)}
+                  onClick={() => setActiveStep(step.id)}
+                  className={`relative p-8 rounded-2xl cursor-pointer transition-all duration-300 ease-out z-10 ${
+                    isActive
+                      ? "bg-[#0b1224] border border-blue-900/30 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)]"
+                      : "bg-transparent border border-transparent hover:bg-white/[0.02]"
+                  }`}
                 >
-                  {step.visual}
-                </motion.div>
-              ) : null,
-            )}
-          </AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="absolute -left-12 top-0 bottom-0 w-[3px] bg-[#4f85ff] rounded-full z-20"
+                      style={{
+                        boxShadow:
+                          "0 0 20px 2px rgba(79, 133, 255, 0.6), 0 0 10px 1px rgba(79, 133, 255, 0.4) inset",
+                      }}
+                    />
+                  )}
+                  <h3
+                    className={`text-2xl font-semibold mb-3 transition-colors duration-300 ${isActive ? "text-white" : "text-slate-500"}`}
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p
+                    className={`text-base leading-relaxed transition-colors duration-300 ${isActive ? "text-slate-300" : "text-slate-600"}`}
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
+                    {step.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right Column (Visuals) */}
+          <div className="w-7/12 h-[550px] sticky top-32 z-10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeStep}
+                className="absolute inset-0 h-full w-full"
+              >
+                {steps.find((s) => s.id === activeStep)?.visual}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>
