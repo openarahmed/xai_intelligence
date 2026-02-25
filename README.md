@@ -70,13 +70,68 @@ Motion is designed to be **explanatory, not decorative**.
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 Clone the repository and install dependencies:
 
 ```bash
-git clone <https://github.com/openarahmed/xai_intelligence.git>
-cd <xai_intelligence>
+git clone https://github.com/openarahmed/xai_intelligence.git
+cd xai_intelligence
 npm install
 npm run dev
 ```
+
+````
+
+Then open:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 📐 Design Reference
+
+Figma file:
+
+👉 https://www.figma.com/design/S7bHFNQTT73MKRL6Gz5H2g/XAI-INTELLIGENCE?node-id=0-1&m=dev&t=aeB6pn5GnaWNR0AM-1
+
+---
+
+## ⚡ Performance Considerations
+
+- Optimized animation loops
+- Hardware-accelerated transforms
+- Lightweight component composition
+- Smooth scroll orchestration
+- Desktop-first responsive planning
+
+---
+
+## 📌 Notes
+
+- No backend is used (mock data only)
+- Experience optimized primarily for desktop
+- Built as part of the RacoAI frontend challenge
+
+---
+
+## 🪪 License
+
+This project is for evaluation and demonstration purposes.
+
+```
+
+---
+
+## 🧨 Before You Commit (do not skip)
+
+Replace these:
+
+- `https://github.com/openarahmed/xai_intelligence.git`
+- `xai_intelligence`
+- `https://drive.google.com/file/d/1t9clMp8fSOpeGMouzkvR7hf4lrsLqaT1/view?usp=sharing`
+- `https://www.figma.com/design/S7bHFNQTT73MKRL6Gz5H2g/XAI-INTELLIGENCE?node-id=0-1&m=dev&t=aeB6pn5GnaWNR0AM-1`
+
+````
