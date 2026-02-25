@@ -9,6 +9,7 @@ This prototype focuses on clarity, purposeful motion, and product-grade UI craft
 ## ✨ Live Demo
 
 🔗 Live URL: https://xai-intelligence.netlify.app/
+🔗 Video Url link: https://drive.google.com/file/d/1t9clMp8fSOpeGMouzkvR7hf4lrsLqaT1/view?usp=sharing
 
 ---
 
@@ -122,16 +123,4 @@ Figma file:
 This project is for evaluation and demonstration purposes.
 
 ```
-
----
-
-## 🧨 Before You Commit (do not skip)
-
-Replace these:
-
-- `https://github.com/openarahmed/xai_intelligence.git`
-- `xai_intelligence`
-- `https://drive.google.com/file/d/1t9clMp8fSOpeGMouzkvR7hf4lrsLqaT1/view?usp=sharing`
-- `https://www.figma.com/design/S7bHFNQTT73MKRL6Gz5H2g/XAI-INTELLIGENCE?node-id=0-1&m=dev&t=aeB6pn5GnaWNR0AM-1`
-
 ````
